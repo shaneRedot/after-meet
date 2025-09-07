@@ -1,0 +1,35 @@
+{
+  "name": "after-meet",
+  "version": "1.0.0",
+  "description": "Post-meeting social media content generator",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:api\" \"npm run dev:web\"",
+    "dev:api": "npm run dev --workspace=@after-meet/api",
+    "dev:web": "npm run dev --workspace=@after-meet/web",
+    "build": "npm run build --workspaces",
+    "build:api": "npm run build --workspace=@after-meet/api",
+    "build:web": "npm run build --workspace=@after-meet/web",
+    "typeorm": "npm run typeorm --workspace=@after-meet/database",
+    "migration:generate": "npm run migration:generate --workspace=@after-meet/database",
+    "migration:run": "npm run migration:run --workspace=@after-meet/database",
+    "migration:revert": "npm run migration:revert --workspace=@after-meet/database",
+    "test": "npm run test --workspaces",
+    "lint": "npm run lint --workspaces",
+    "clean": "rimraf apps/*/dist packages/*/dist apps/*/.next"
+  },
+  "devDependencies": {
+    "@types/node": "^20.5.0",
+    "concurrently": "^8.2.0",
+    "rimraf": "^5.0.1",
+    "typescript": "^5.1.6"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}

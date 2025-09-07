@@ -1,0 +1,29 @@
+{
+  "name": "@after-meet/database",
+  "version": "1.0.0",
+  "description": "Database entities and utilities for After Meet",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "typeorm": "typeorm-ts-node-commonjs",
+    "migration:generate": "npm run typeorm -- migration:generate -d src/data-source.ts",
+    "migration:run": "npm run typeorm -- migration:run -d src/data-source.ts",
+    "migration:revert": "npm run typeorm -- migration:revert -d src/data-source.ts",
+    "schema:drop": "npm run typeorm -- schema:drop -d src/data-source.ts",
+    "schema:sync": "npm run typeorm -- schema:sync -d src/data-source.ts"
+  },
+  "dependencies": {
+    "typeorm": "^0.3.17",
+    "pg": "^8.11.3",
+    "reflect-metadata": "^0.1.13"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.10.2",
+    "typescript": "^5.1.6"
+  },
+  "peerDependencies": {
+    "typeorm": "^0.3.17"
+  }
+}

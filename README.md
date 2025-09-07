@@ -1,108 +1,222 @@
-# After Meet - Post-Meeting Social Media Content Generator
+# After Meet - Meeting Intelligence Platform
 
-A comprehensive platform that automatically generates social media content from meeting transcripts using AI, with seamless calendar integration and multi-platform posting capabilities.
+A comprehensive platform for meeting management, AI-powered content generation, and social media automation.
 
-## 🚀 Features
-
-- **Google Calendar Integration**: Automatic meeting detection and bot scheduling
-- **AI-Powered Content Generation**: Create engaging social media posts from meeting transcripts
-- **Multi-Platform Support**: Post to LinkedIn and Facebook
-- **Automated Meeting Bots**: Recall.ai integration for transcript capture
-- **Customizable Automations**: Configure post generation templates
-- **OAuth Authentication**: Secure login with Google, LinkedIn, and Facebook
-
-## 🏗️ Architecture
-
-```
-after-meet/
-├── apps/
-│   ├── api/          # NestJS Backend API
-│   └── web/          # Next.js Frontend
-├── packages/
-│   ├── database/     # TypeORM entities & migrations
-│   ├── shared/       # Shared types & utilities
-│   └── ui/           # Shared UI components
-└── docker-compose.yml
-```
-
-## 🛠️ Tech Stack
-
-- **Frontend**: Next.js 14 (App Router) + TypeScript + Tailwind CSS
-- **Backend**: NestJS + TypeScript + TypeORM
-- **Database**: PostgreSQL
-- **Queue**: RabbitMQ
-- **Auth**: OAuth 2.0 (Google, LinkedIn, Facebook)
-- **AI**: OpenAI GPT-4
-- **Meeting Bots**: Recall.ai
-
-## 🚦 Getting Started
+## 🚀 Quick Start - Local Development (Recommended)
 
 ### Prerequisites
+- Node.js 18+
+- PostgreSQL 15+ (or use Docker for database)
 
-- Node.js 18+ and npm 9+
-- PostgreSQL 14+
-- RabbitMQ (optional for local dev)
+### **CURRENT WORKING SETUP:**
 
-### Installation
+1. **Start Database & Redis (Docker):**
+```bash
+docker-compose up postgres redis -d
+```
 
+2. **Start API Server:**
+```bash
+cd D:\after-meet\apps\api
+node dist/apps/api/src/main.js
+```
+
+3. **Start Frontend (New Terminal):**
+```bash
+cd D:\after-meet\apps\web
+npm run dev
+```
+
+**Services will be available at:**
+- **API**: http://localhost:3001 ✅ 
+- **Web App**: http://localhost:3000
+- **Database**: PostgreSQL on port 5432
+- **Redis**: Port 6379
+
+## 🐳 Docker Deployment (Alternative)
+
+### Prerequisites
+- Docker and Docker Compose installed
+- Recall.ai API key
+
+### Environment Setup
+1. Copy environment files:
+```bash
+cp .env.example .env
+cp apps/api/.env.example apps/api/.env
+cp apps/web/.env.example apps/web/.env
+```
+
+2. Configure your Recall.ai API key in:
+   - `apps/api/.env`: Set `RECALL_API_TOKEN=your_api_key_here`
+
+### Deploy with Docker
+```bash
+# Build and start all services
+docker-compose up --build
+
+# Or run in background
+docker-compose up --build -d
+```
+
+## 🛠️ Development Setup (Full Local)
+
+### Prerequisites
+- Node.js 18+
+- PostgreSQL 15+
+- Redis
+
+### Setup
 ```bash
 # Install dependencies
 npm install
 
-# Setup environment variables
-cp .env.example .env
+# Build packages
+npm run build
 
-# Run database migrations
-npm run migration:run
+# Start database (Docker)
+docker-compose up postgres redis -d
 
-# Start development servers
+# Start API server
+cd apps/api
+npm run start:dev
+
+# Start web server (new terminal)
+cd apps/web
 npm run dev
 ```
 
 ## 📁 Project Structure
 
-### Apps
-- **API** (`apps/api`): NestJS backend with authentication, calendar sync, AI generation
-- **Web** (`apps/web`): Next.js frontend with dashboard, meeting management, social posting
-
-### Packages
-- **Database** (`packages/database`): TypeORM entities, migrations, and database utilities
-- **Shared** (`packages/shared`): Common types, utilities, and business logic
-- **UI** (`packages/ui`): Reusable React components and design system
-
-## 🔧 Development Workflow
-
-1. **Database Changes**: Update entities in `packages/database`, generate migrations
-2. **API Development**: Add controllers/services in `apps/api`
-3. **Frontend Development**: Build components in `apps/web`
-4. **Shared Code**: Common utilities in `packages/shared`
-
-## 📝 Environment Variables
-
-```env
-# Database
-DATABASE_URL=postgresql://user:password@localhost:5432/aftermeet
-
-# Authentication
-JWT_SECRET=your-jwt-secret
-GOOGLE_CLIENT_ID=your-google-client-id
-GOOGLE_CLIENT_SECRET=your-google-client-secret
-
-# External APIs
-RECALL_API_KEY=your-recall-api-key
-OPENAI_API_KEY=your-openai-api-key
-
-# Queue (optional)
-RABBITMQ_URL=amqp://localhost:5672
+```
+after-meet/
+├── apps/
+│   ├── api/              # NestJS Backend API
+│   └── web/              # Next.js Frontend
+├── packages/
+│   ├── database/         # Database entities & migrations
+│   └── shared/           # Shared utilities & types
+├── scripts/              # Database initialization
+└── docker-compose.yml   # Docker services
 ```
 
-## 🚀 Deployment
+## 🔧 API Endpoints
 
-- **Frontend**: Vercel (recommended) or any static hosting
-- **Backend**: Railway, Render, or AWS ECS
-- **Database**: Railway PostgreSQL, Supabase, or AWS RDS
-- **Queue**: CloudAMQP or self-hosted
+### Authentication
+- `POST /auth/login` - User login
+- `POST /auth/register` - User registration
+- `GET /auth/profile` - Get user profile
 
-## 📄 License
+### Meetings
+- `GET /meetings` - List meetings
+- `POST /meetings` - Create meeting
+- `GET /meetings/:id` - Get meeting details
+- `PUT /meetings/:id` - Update meeting
+- `DELETE /meetings/:id` - Delete meeting
 
-MIT License - see LICENSE file for details
+### AI Content Generation
+- `POST /ai/generate-content` - Generate AI content
+- `POST /ai/summarize` - Summarize meeting content
+
+### Calendar Integration
+- `GET /calendar/events` - Get calendar events
+- `POST /calendar/sync` - Sync calendar
+
+### Social Media
+- `GET /social/posts` - List social posts
+- `POST /social/schedule` - Schedule social post
+
+### Recall.ai Integration
+- `POST /recall/create-bot` - Create meeting bot
+- `GET /recall/bots` - List active bots
+- `DELETE /recall/bots/:id` - Remove bot
+
+## 🗄️ Database
+
+### Run Migrations
+```bash
+cd packages/database
+npm run migration:run
+```
+
+### Create Migration
+```bash
+cd packages/database
+npm run migration:generate -- -n MigrationName
+```
+
+## 🔍 Troubleshooting
+
+### Docker Issues
+1. **Port conflicts**: Ensure ports 3000, 3001, 5432, 6379 are available
+2. **Build failures**: Run `docker-compose down -v` and rebuild
+3. **Database connection**: Check PostgreSQL container is running
+
+### API Issues
+1. **Module not found**: Run `npm run build` in root directory
+2. **Database connection**: Verify DATABASE_URL in .env
+3. **Recall.ai errors**: Check RECALL_API_TOKEN is valid
+
+### Common Commands
+```bash
+# Reset Docker environment
+docker-compose down -v
+docker-compose up --build
+
+# Reset node_modules
+rm -rf node_modules apps/*/node_modules packages/*/node_modules
+npm install
+
+# Check logs
+docker-compose logs api
+docker-compose logs web
+```
+
+## 🔐 Environment Variables
+
+### API (.env)
+```
+DATABASE_URL=postgresql://user:password@localhost:5432/aftermeet
+REDIS_URL=redis://localhost:6379
+JWT_SECRET=your-jwt-secret
+RECALL_API_TOKEN=your-recall-api-key
+OPENAI_API_KEY=your-openai-key
+```
+
+### Web (.env.local)
+```
+NEXT_PUBLIC_API_URL=http://localhost:3001
+```
+
+## 📊 Health Checks
+
+### API Health
+```bash
+curl http://localhost:3001/health
+```
+
+### Database Connection
+```bash
+node test-db-connection.js
+```
+
+## 🚀 Production Deployment
+
+1. Set production environment variables
+2. Build production images:
+```bash
+docker-compose -f docker-compose.prod.yml up --build -d
+```
+
+3. Run database migrations:
+```bash
+docker-compose exec api npm run migration:run
+```
+
+## 📝 License
+
+Private project - All rights reserved
+
+## 🤝 Support
+
+For support and questions, contact the development team.

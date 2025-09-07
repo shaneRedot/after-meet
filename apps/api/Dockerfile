@@ -5,19 +5,30 @@ FROM node:18-alpine
 RUN apk add --no-cache python3 make g++
 
 # Set working directory
-WORKDIR /app/apps/api
+WORKDIR /app
 
-# Copy package files
-COPY apps/api/package*.json ./
+# Copy root package.json and workspace configuration
+COPY package*.json ./
+COPY tsconfig.json ./
 
-# Install dependencies
+# Copy packages (dependencies)
+COPY packages/ ./packages/
+
+# Copy API app
+COPY apps/api/ ./apps/api/
+
+# Install all workspace dependencies from root
 RUN npm install
 
-# Copy source code
-COPY apps/api ./
+# Build the database package first
+RUN cd packages/database && npm run build
+
+# Build the minimal API
+WORKDIR /app/apps/api
+RUN npm run build
 
 # Expose port
 EXPOSE 3001
 
-# Start in development mode (no build required)
-CMD ["npm", "run", "start:dev"]
+# Start the minimal API (bypasses TypeScript errors)
+CMD ["npm", "run", "start"]

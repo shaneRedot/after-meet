@@ -9,6 +9,7 @@
     "build:full": "tsc --project tsconfig.json",
     "build:minimal": "tsc src/main.minimal.ts --outDir dist --moduleResolution node --esModuleInterop --experimentalDecorators --emitDecoratorMetadata",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "dev": "nest start --watch",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:minimal": "node dist/main.minimal.js",
@@ -23,6 +24,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@after-meet/database": "*",
     "@nestjs/axios": "^4.0.1",
     "@nestjs/bull": "^10.2.3",
     "@nestjs/common": "^10.0.0",

@@ -2,13 +2,14 @@ import { Controller, Get, Post, UseGuards, Req, Res, HttpStatus } from '@nestjs/
 import { AuthGuard } from '@nestjs/passport';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
+import { ConfigService } from '@nestjs/config';
 
 /**
  * - "add webshookeng@gmail.com as an oauth test user" → Handled in Google strategy
  */
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService, private readonly configService: ConfigService) {}
 
 
 
@@ -29,14 +30,14 @@ export class AuthController {
   @UseGuards(AuthGuard('google'))
   async googleCallback(@Req() req: any, @Res() res: Response) {
     console.log('🔄 Google OAuth callback route hit');
+    const url = this.configService.get('FRONTEND_URL');  
     try {
       const result = await this.authService.handleOAuthCallback('google', req.user);
-      
       // Redirect to frontend auth callback with JWT token
-      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      const frontendUrl = url || 'http://localhost:3000';
       res.redirect(`${frontendUrl}/auth/callback?token=${result.accessToken}&user=${encodeURIComponent(JSON.stringify(result.user))}`);
     } catch (error: any) {
-      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      const frontendUrl = url || 'http://localhost:3000';
       res.redirect(`${frontendUrl}/auth/callback?error=${encodeURIComponent(error.message)}`);
     }
   }

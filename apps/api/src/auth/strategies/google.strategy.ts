@@ -20,15 +20,27 @@ import { ConfigService } from '@nestjs/config';
  */
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
+  
   constructor(private configService: ConfigService) {
+    // Debug: Check if environment variables are loaded
+    const clientId = configService.get('GOOGLE_CLIENT_ID');
+    const clientSecret = configService.get('GOOGLE_CLIENT_SECRET');
+    const callbackUrl = configService.get('GOOGLE_CALLBACK_URL');
+    
+    console.log('🔍 Google OAuth Configuration Debug:');
+    console.log('GOOGLE_CLIENT_ID:', clientId ? `${clientId.substring(0, 10)}...` : 'NOT FOUND');
+    console.log('GOOGLE_CLIENT_SECRET:', clientSecret ? `${clientSecret.substring(0, 10)}...` : 'NOT FOUND');
+    console.log('GOOGLE_CALLBACK_URL:', callbackUrl || 'NOT FOUND');
+    console.log('🚀 GoogleStrategy constructor called');
+    
     super({
-      clientID: configService.get('GOOGLE_CLIENT_ID'),
-      clientSecret: configService.get('GOOGLE_CLIENT_SECRET'),
-      callbackURL: configService.get('GOOGLE_CALLBACK_URL'),
+      clientID: clientId,
+      clientSecret: clientSecret,
+      callbackURL: callbackUrl,
       scope: [
         'profile',
         'email',
-        'https://www.googleapis.com/auth/calendar.readonly', // Calendar access - temporarily disabled for testing
+        'https://www.googleapis.com/auth/calendar.readonly', // Temporarily disabled for testing
       ],
     });
   }

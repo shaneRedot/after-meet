@@ -9,7 +9,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { LinkedInStrategy } from './strategies/linkedin.strategy';
-import { FacebookStrategy } from './strategies/facebook.strategy';
+// import { FacebookStrategy } from './strategies/facebook.strategy'; // Temporarily disabled
 import { JwtStrategy } from './strategies/jwt.strategy';
 
 /**
@@ -45,7 +45,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     AuthService,
     GoogleStrategy,
     LinkedInStrategy,
-    FacebookStrategy,
+    // FacebookStrategy, // Temporarily disabled
     JwtStrategy,
   ],
   exports: [AuthService, JwtModule],

@@ -10,6 +10,8 @@ import { AuthService } from './auth.service';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+
+
   /**
    * Google OAuth Initiation
    * 
@@ -19,13 +21,14 @@ export class AuthController {
   @Get('google')
   @UseGuards(AuthGuard('google'))
   async googleAuth() {
-    // Guard redirects to Google OAuth
+    // This method body never executes - the AuthGuard redirects to Google OAuth first
   }
 
 
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
   async googleCallback(@Req() req: any, @Res() res: Response) {
+    console.log('🔄 Google OAuth callback route hit');
     try {
       const result = await this.authService.handleOAuthCallback('google', req.user);
       

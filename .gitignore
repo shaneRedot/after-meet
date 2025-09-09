@@ -16,6 +16,14 @@ build/
 .next/
 out/
 
+# TypeScript compiled files in packages
+packages/**/*.js
+packages/**/*.js.map
+packages/**/*.d.ts
+packages/**/*.d.ts.map
+packages/**/tsconfig.tsbuildinfo
+apps/**/tsconfig.tsbuildinfo
+
 # Database
 *.db
 *.sqlite

@@ -226,10 +226,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         const response = await api.meetings.getUpcoming();
         console.log('📅 API Response:', response);
         
-        const upcoming = response.meetings.filter((m: any) => m.status === 'upcoming');
-        const recent = response.meetings.filter((m: any) => m.status === 'completed');
+        // Backend already filters by upcoming vs past, so we don't need to filter by status
+        const upcoming = response.meetings || [];
+        const recent: string | any[] = []; // We'll get recent meetings from a separate API call if needed
         
-        console.log('📊 Filtered meetings:', { upcoming: upcoming.length, recent: recent.length });
+        console.log('📊 Meetings loaded:', { upcoming: upcoming.length, recent: recent.length });
         console.log('📋 Upcoming meetings:', upcoming);
         
         dispatch({ type: 'SET_MEETINGS', payload: { upcoming, recent } });

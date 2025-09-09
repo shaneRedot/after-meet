@@ -202,7 +202,7 @@ export class AuthService {
             email: user.email,
             name: user.name
         };
-        return this.jwtService.sign(payload);
+        return this.jwtService.sign(payload, { secret: process.env.JWT_SECRET });
     }
 
     /**

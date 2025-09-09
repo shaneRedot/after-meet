@@ -28,6 +28,36 @@ export class CalendarService {
   async getUpcomingEvents(userId: string, maxResults = 10): Promise<CalendarEvent[]> {
     this.logger.log(`🔍 Fetching calendar events for user: ${userId}`);
     
+    // Mock data for local development (no calendar scope available)
+    if (process.env.NODE_ENV === 'local') {
+      this.logger.log(`🧪 Using mock calendar data for development`);
+      return [
+        {
+          id: 'mock-event-1',
+          title: 'Team Standup',
+          startTime: new Date(Date.now() + 1 * 60 * 60 * 1000), // 1 hour from now
+          endTime: new Date(Date.now() + 1.5 * 60 * 60 * 1000),
+          meetingUrl: 'https://meet.google.com/abc-def-ghi',
+          attendees: ['team@company.com', 'manager@company.com'],
+        },
+        {
+          id: 'mock-event-2',
+          title: 'Client Meeting',
+          startTime: new Date(Date.now() + 24 * 60 * 60 * 1000), // Tomorrow
+          endTime: new Date(Date.now() + 25 * 60 * 60 * 1000),
+          meetingUrl: 'https://zoom.us/j/123456789',
+          attendees: ['client@example.com'],
+        },
+        {
+          id: 'mock-event-3',
+          title: 'Project Review',
+          startTime: new Date(Date.now() + 48 * 60 * 60 * 1000), // Day after tomorrow
+          endTime: new Date(Date.now() + 49 * 60 * 60 * 1000),
+          attendees: ['reviewer@company.com', 'stakeholder@company.com'],
+        },
+      ];
+    }
+    
     try {
       const googleAccount = await this.getGoogleAccount(userId);
       this.logger.log(`✅ Found Google account for user ${userId}`);

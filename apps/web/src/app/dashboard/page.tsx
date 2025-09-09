@@ -7,13 +7,34 @@ import { useEffect, useState } from 'react';
 export default function Dashboard() {
   const { state, actions } = useApp();
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [isSyncing, setIsSyncing] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
+
   const { meetings, socialPosts, jobs, user } = state;
+  
+  // Load meetings when dashboard mounts - only run once when user becomes authenticated
+  useEffect(() => {
+    if (user.isAuthenticated) {
+      console.log('🔄 Dashboard: Loading meetings for authenticated user');
+      actions.loadMeetings();
+    }
+  }, [user.isAuthenticated]); // Remove actions from dependencies to prevent infinite loop
+
+  // Debug: Log meetings state changes
+  useEffect(() => {
+    console.log('📊 Dashboard: Meetings state updated:', {
+      upcoming: meetings.upcoming.length,
+      loading: meetings.loading,
+      error: meetings.error
+    });
+  }, [meetings]);
+
+  
 
   if (!user.isAuthenticated) {
     return (
@@ -194,18 +215,22 @@ export default function Dashboard() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={async () => {
+                    setIsSyncing(true);
                     try {
                       const result = await actions.syncCalendar();
-                      alert(`Calendar synced! Created: ${result.created}, Updated: ${result.updated}, Skipped: ${result.skipped}`);
+                      console.log('Calendar synced successfully:', result);
                     } catch (error) {
-                      alert('Calendar sync failed. Check console for details.');
+                      console.error('Calendar sync failed:', error);
+                    } finally {
+                      setIsSyncing(false);
                     }
                   }}
-                  className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors"
+                  disabled={isSyncing}
+                  className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Sync Calendar
+                  {isSyncing ? 'Syncing...' : 'Sync Calendar'}
                 </button>
-                {meetings.loading && (
+                {(meetings.loading || isSyncing) && (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
                 )}
               </div>
@@ -214,6 +239,7 @@ export default function Dashboard() {
               {meetings.error && (
                 <div className="text-red-600 text-sm mb-4">{meetings.error}</div>
               )}
+              
               {meetings.upcoming.length === 0 ? (
                 <p className="text-gray-500 text-center py-8">No upcoming meetings</p>
               ) : (

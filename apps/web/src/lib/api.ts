@@ -148,7 +148,8 @@ export const api = {
 
     toggleBot: async (id: string, enabled: boolean) => {
       if (ENABLE_REAL_API) {
-        return httpClient.put(`/meetings/${id}/bot`, { enabled });
+        const endpoint = enabled ? `/meetings/${id}/recall/enable` : `/meetings/${id}/recall/disable`;
+        return await httpClient.post(endpoint, {});
       }
       return { id, recallEnabled: enabled };
     },

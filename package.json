@@ -29,6 +29,7 @@
   "devDependencies": {
     "@types/node": "^20.5.0",
     "concurrently": "^8.2.0",
+    "https-localhost": "^4.7.1",
     "rimraf": "^5.0.1",
     "typescript": "^5.1.6"
   },

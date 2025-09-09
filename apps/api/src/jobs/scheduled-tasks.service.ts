@@ -67,7 +67,12 @@ export class ScheduledTasksService {
       const queueNames = ['meeting-bot', 'content-generation', 'social-posting', 'cleanup'];
       
       for (const queueName of queueNames) {
-        await this.jobsService.cleanQueue(queueName, 3600000); // Clean jobs older than 1 hour
+        try {
+          await this.jobsService.cleanQueue(queueName, 3600000); // Clean jobs older than 1 hour
+          this.logger.debug(`Cleaned queue: ${queueName}`);
+        } catch (queueError) {
+          this.logger.warn(`Failed to clean queue ${queueName}:`, String(queueError));
+        }
       }
       
       this.logger.log('Job cleanup completed');
@@ -127,40 +132,48 @@ export class ScheduledTasksService {
     this.logger.log('Checking for content generation triggers...');
     
     try {
-      // Get recently completed meetings with transcripts but no generated content
-      // Note: Would need to extend MeetingsService with this specific query method
-      // For now, get user meetings as placeholder
-      const recentMeetingsResult = await this.meetingsService.getUserMeetings(this.SYSTEM_USER_ID);
-      const recentMeetings = recentMeetingsResult.meetings.filter(m => 
-        m.transcript && m.status === 'completed'
-      );
+      // Get all users first, then check their meetings
+      const users = await this.usersService.findAll();
       
-      for (const meeting of recentMeetings) {
-        if (meeting.transcript) {
-          // Get user preferences
-          const user = await this.usersService.findById(meeting.userId);
-          
-          await this.jobsService.scheduleContentGeneration({
-            id: `content-${meeting.id}`,
-            userId: meeting.userId,
-            meetingId: meeting.id,
-            type: 'content-generation',
-            data: {
-              meetingId: meeting.id,
-              transcriptUrl: meeting.transcript, // Using transcript field
-              meetingTitle: meeting.title,
-              meetingDuration: 0, // Duration not available in current schema
-              participants: [], // Participants not available in current schema
-              preferences: {
-                tone: 'professional',
-                platform: ['linkedin'],
-                contentType: ['summary', 'insights'],
-              },
-            },
-            createdAt: new Date(),
-          });
+      if (!users || users.length === 0) {
+        this.logger.log('No users found for content generation check');
+        return;
+      }
 
-          this.logger.log(`Scheduled content generation for meeting ${meeting.id}`);
+      for (const user of users) {
+        try {
+          const recentMeetingsResult = await this.meetingsService.getUserMeetings(user.id);
+          const recentMeetings = recentMeetingsResult.meetings.filter(m => 
+            m.transcript && m.status === 'completed'
+          );
+      
+          for (const meeting of recentMeetings) {
+            if (meeting.transcript) {
+              await this.jobsService.scheduleContentGeneration({
+                id: `content-${meeting.id}`,
+                userId: meeting.userId,
+                meetingId: meeting.id,
+                type: 'content-generation',
+                data: {
+                  meetingId: meeting.id,
+                  transcriptUrl: meeting.transcript, // Using transcript field
+                  meetingTitle: meeting.title,
+                  meetingDuration: 0, // Duration not available in current schema
+                  participants: [], // Participants not available in current schema
+                  preferences: {
+                    tone: 'professional',
+                    platform: ['linkedin'],
+                    contentType: ['summary', 'insights'],
+                  },
+                },
+                createdAt: new Date(),
+              });
+
+              this.logger.log(`Scheduled content generation for meeting ${meeting.id}`);
+            }
+          }
+        } catch (userError) {
+          this.logger.warn(`Error processing meetings for user ${user.id}:`, userError);
         }
       }
     } catch (error) {

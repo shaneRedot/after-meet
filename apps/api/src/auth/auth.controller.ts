@@ -111,6 +111,44 @@ export class AuthController {
   }
 
   /**
+   * Debug endpoint - check user accounts and tokens
+   */
+  @Get('debug')
+  @UseGuards(AuthGuard('jwt'))
+  async debugUser(@Req() req: any) {
+    try {
+      const userId = req.user.id;
+      const user = await this.authService.getCurrentUser(userId);
+      
+      // Get all linked accounts (we'll need to add this method)
+      const accounts = await this.authService.getUserAccounts(userId);
+      
+      return {
+        userId,
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+        },
+        accounts: accounts.map(account => ({
+          id: account.id,
+          provider: account.provider,
+          providerAccountId: account.providerAccountId,
+          hasAccessToken: !!account.accessToken,
+          hasRefreshToken: !!account.refreshToken,
+          tokenLength: account.accessToken ? account.accessToken.length : 0,
+        })),
+        totalAccounts: accounts.length,
+      };
+    } catch (error) {
+      return {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        userId: req.user?.id || 'unknown',
+      };
+    }
+  }
+
+  /**
    * Unlink Social Account
    * 
    * Removes connection to LinkedIn or Facebook account

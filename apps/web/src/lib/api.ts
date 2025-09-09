@@ -1,6 +1,13 @@
 // API Configuration and client setup
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-const ENABLE_REAL_API = process.env.NEXT_PUBLIC_ENABLE_REAL_API === 'true';
+const ENABLE_REAL_API = true; // Forced to true for debugging
+
+// Debug logging (remove after testing)
+console.log('API Config:', {
+  API_BASE_URL,
+  NEXT_PUBLIC_ENABLE_REAL_API: process.env.NEXT_PUBLIC_ENABLE_REAL_API,
+  ENABLE_REAL_API
+});
 
 // HTTP client with base configuration
 const httpClient = {
@@ -69,8 +76,21 @@ export const api = {
   // Meetings endpoints
   meetings: {
     getUpcoming: async () => {
+      console.log('🔍 getUpcoming called, ENABLE_REAL_API:', ENABLE_REAL_API);
+      
       if (ENABLE_REAL_API) {
-        return httpClient.get('/meetings/upcoming');
+        console.log('📡 Making real API call to:', `${API_BASE_URL}/api/meetings?upcoming=true`);
+        const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
+        console.log('🔑 Auth token:', token ? 'Present' : 'Missing');
+        
+        try {
+          const result = await httpClient.get('/meetings?upcoming=true');
+          console.log('✅ Real API response:', result);
+          return result;
+        } catch (error) {
+          console.error('❌ Real API error:', error);
+          throw error;
+        }
       }
       // Mock data that matches backend Meeting entity structure
       return {
@@ -131,6 +151,21 @@ export const api = {
         return httpClient.put(`/meetings/${id}/bot`, { enabled });
       }
       return { id, recallEnabled: enabled };
+    },
+
+    syncCalendar: async (daysAhead: number = 30) => {
+      if (ENABLE_REAL_API) {
+        console.log('🔄 Syncing calendar events...');
+        try {
+          const result = await httpClient.post('/meetings/sync', { daysAhead });
+          console.log('✅ Calendar sync result:', result);
+          return result;
+        } catch (error) {
+          console.error('❌ Calendar sync error:', error);
+          throw error;
+        }
+      }
+      return { created: 0, updated: 0, skipped: 0, errors: [] };
     },
   },
 
@@ -355,7 +390,7 @@ export const api = {
     register: (data) => apiClient.post('/auth/register', data),
   },
   meetings: {
-    getUpcoming: () => apiClient.get('/meetings'),
+    getUpcoming: () => apiClient.get('/meetings?upcoming=true'),
     getById: (id) => apiClient.get(`/meetings/${id}`),
     toggleBot: (id, enabled) => apiClient.patch(`/meetings/${id}/bot`, { enabled }),
   },

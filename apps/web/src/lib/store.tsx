@@ -208,6 +208,7 @@ const AppContext = createContext<{
     loadAIStatus: () => Promise<void>;
     toggleMeetingBot: (meetingId: string, enabled: boolean) => Promise<void>;
     refreshData: () => Promise<void>;
+    syncCalendar: () => Promise<any>;
     logout: () => void;
   };
 } | null>(null);
@@ -220,13 +221,20 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     loadMeetings: async () => {
       try {
         dispatch({ type: 'SET_LOADING', payload: { section: 'meetings', loading: true } });
+        console.log('🔄 Loading meetings...');
+        
         const response = await api.meetings.getUpcoming();
+        console.log('📅 API Response:', response);
         
         const upcoming = response.meetings.filter((m: any) => m.status === 'upcoming');
         const recent = response.meetings.filter((m: any) => m.status === 'completed');
         
+        console.log('📊 Filtered meetings:', { upcoming: upcoming.length, recent: recent.length });
+        console.log('📋 Upcoming meetings:', upcoming);
+        
         dispatch({ type: 'SET_MEETINGS', payload: { upcoming, recent } });
       } catch (error) {
+        console.error('❌ Error loading meetings:', error);
         dispatch({ type: 'SET_ERROR', payload: { section: 'meetings', error: 'Failed to load meetings' } });
       }
     },
@@ -270,6 +278,22 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         dispatch({ type: 'TOGGLE_MEETING_BOT', payload: { meetingId, enabled } });
       } catch (error) {
         console.error('Failed to toggle meeting bot:', error);
+      }
+    },
+
+    syncCalendar: async () => {
+      try {
+        console.log('🔄 Starting calendar sync...');
+        const result = await api.meetings.syncCalendar(30);
+        console.log('📅 Sync completed:', result);
+        
+        // Reload meetings after sync
+        await actions.loadMeetings();
+        
+        return result;
+      } catch (error) {
+        console.error('❌ Calendar sync failed:', error);
+        throw error;
       }
     },
 

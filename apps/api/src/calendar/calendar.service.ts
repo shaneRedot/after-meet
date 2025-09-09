@@ -26,10 +26,16 @@ export class CalendarService {
    * Get Google Calendar events for a user
    */
   async getUpcomingEvents(userId: string, maxResults = 10): Promise<CalendarEvent[]> {
-    const googleAccount = await this.getGoogleAccount(userId);
-    const calendar = this.createCalendarClient(googleAccount.accessToken);
-
+    this.logger.log(`🔍 Fetching calendar events for user: ${userId}`);
+    
     try {
+      const googleAccount = await this.getGoogleAccount(userId);
+      this.logger.log(`✅ Found Google account for user ${userId}`);
+      this.logger.log(`🔑 Access token length: ${googleAccount.accessToken?.length || 0}`);
+      
+      const calendar = this.createCalendarClient(googleAccount.accessToken);
+      this.logger.log(`📅 Created calendar client, fetching events...`);
+
       const response = await calendar.events.list({
         calendarId: 'primary',
         timeMin: new Date().toISOString(),
@@ -37,6 +43,8 @@ export class CalendarService {
         singleEvents: true,
         orderBy: 'startTime',
       });
+
+      this.logger.log(`📊 Calendar API response received, items: ${response.data.items?.length || 0}`);
 
       return (response.data.items || []).map(event => ({
         id: event.id!,
@@ -49,8 +57,24 @@ export class CalendarService {
           .filter(Boolean) as string[],
       }));
     } catch (error) {
-      this.logger.error(`Failed to fetch calendar events for user ${userId}:`, error);
-      throw new Error('Failed to fetch calendar events');
+      this.logger.error(`❌ Failed to fetch calendar events for user ${userId}:`, error);
+      
+      // More detailed error logging
+      if (error.code === 401) {
+        this.logger.error(`🔑 Authentication Error: The access token is invalid or expired`);
+        this.logger.error(`💡 Possible causes: 1) Token expired 2) Calendar API not enabled 3) Missing calendar scope`);
+      } else if (error.code === 403) {
+        this.logger.error(`🚫 Permission Error: Calendar API access denied`);
+        this.logger.error(`💡 Possible causes: 1) Calendar API not enabled 2) OAuth consent screen missing calendar scope`);
+      }
+      
+      this.logger.error(`❌ Error details:`, {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        code: (error as any)?.code,
+        status: (error as any)?.status,
+        errors: (error as any)?.errors,
+      });
+      throw new Error(`Calendar API Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 

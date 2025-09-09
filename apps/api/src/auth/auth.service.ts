@@ -259,6 +259,15 @@ export class AuthService {
     }
 
     /**
+     * Get user's linked accounts
+     */
+    async getUserAccounts(userId: string): Promise<Account[]> {
+        return this.accountRepository.find({
+            where: { userId },
+        });
+    }
+
+    /**
      * Encrypt OAuth Tokens
      * 
      * Encrypts tokens before database storage for security

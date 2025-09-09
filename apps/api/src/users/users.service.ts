@@ -108,4 +108,13 @@ export class UsersService {
     // Remove all connected accounts
     await this.accountRepository.delete({ userId });
   }
+
+  /**
+   * Get all users (for scheduled tasks)
+   */
+  async findAll(): Promise<User[]> {
+    return this.userRepository.find({
+      relations: ['accounts', 'settings'],
+    });
+  }
 }

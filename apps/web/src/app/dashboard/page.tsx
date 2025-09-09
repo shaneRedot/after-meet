@@ -191,9 +191,24 @@ export default function Dashboard() {
           <div className="bg-white rounded-lg shadow-sm border">
             <div className="px-6 py-4 border-b flex justify-between items-center">
               <h2 className="text-lg font-semibold text-gray-900">Upcoming Meetings</h2>
-              {meetings.loading && (
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-              )}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={async () => {
+                    try {
+                      const result = await actions.syncCalendar();
+                      alert(`Calendar synced! Created: ${result.created}, Updated: ${result.updated}, Skipped: ${result.skipped}`);
+                    } catch (error) {
+                      alert('Calendar sync failed. Check console for details.');
+                    }
+                  }}
+                  className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors"
+                >
+                  Sync Calendar
+                </button>
+                {meetings.loading && (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                )}
+              </div>
             </div>
             <div className="p-6">
               {meetings.error && (

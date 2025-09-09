@@ -40,8 +40,10 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       scope: [
         'profile',
         'email',
-        'https://www.googleapis.com/auth/calendar.readonly', // Temporarily disabled for testing
+        'https://www.googleapis.com/auth/calendar.readonly',
       ],
+      accessType: 'offline',
+      prompt: 'consent', // Force re-consent to get new scopes
     });
   }
 

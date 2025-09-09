@@ -30,7 +30,7 @@ export default function Dashboard() {
               Please sign in with your Google account to access the After-Meet dashboard.
             </p>
             <a 
-              href="http://localhost:3001/api/auth/google"
+              href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/auth/google`}
               className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors inline-block"
             >
               Sign in with Google

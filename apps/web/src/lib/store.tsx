@@ -208,6 +208,7 @@ const AppContext = createContext<{
     loadAIStatus: () => Promise<void>;
     toggleMeetingBot: (meetingId: string, enabled: boolean) => Promise<void>;
     refreshData: () => Promise<void>;
+    logout: () => void;
   };
 } | null>(null);
 
@@ -277,8 +278,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       localStorage.removeItem('auth_token');
       localStorage.removeItem('user_data');
       
-      // Reset to demo user
-      dispatch({ type: 'SET_USER', payload: { id: '1', email: 'demo@after-meet.com', name: 'Demo User' } });
+      // Reset user state to unauthenticated
+      dispatch({ 
+        type: 'SET_USER', 
+        payload: { 
+          id: '', 
+          email: '', 
+          name: '',
+          isAuthenticated: false 
+        } 
+      });
       
       // Redirect to home page
       window.location.href = '/';

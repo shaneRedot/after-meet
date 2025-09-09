@@ -16,7 +16,7 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       'http://localhost:3000',  // Next.js dev server
-      'https://nadun.space/' // Production frontend
+      'https://nadun.space' // Production frontend
     ],
     credentials: true,
   });

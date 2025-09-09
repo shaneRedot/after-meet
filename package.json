@@ -12,7 +12,7 @@
     "dev": "concurrently \"npm run dev:api\" \"npm run dev:web\"",
     "dev:api": "npm run dev --workspace=@after-meet/api",
     "dev:web": "npm run dev --workspace=web",
-    "start:api": "node server.js",
+    "start:api": "node apps/api/dist/apps/api/src/main.js",
     "start:web": "npm run dev --workspace=web",
     "start:both": "concurrently \"npm run start:api\" \"npm run start:web\"",
     "build": "npm run build --workspaces",

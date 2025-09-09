@@ -38,7 +38,7 @@ export class Meeting {
     })
     platform: MeetingPlatform;
 
-    @Column({ nullable: true })
+    @Column({ type: 'varchar', nullable: true })
     meetingUrl: string | null;
 
     // Store attendee information as JSON
@@ -50,7 +50,7 @@ export class Meeting {
     }> | null;
 
     // Recall.ai bot ID for tracking transcript status
-    @Column({ nullable: true })
+    @Column({ type: 'varchar', nullable: true })
     recallBotId: string | null;
 
     // Full meeting transcript from Recall.ai
@@ -69,7 +69,7 @@ export class Meeting {
     recallEnabled: boolean;
 
     // Google Calendar event ID for updates/sync
-    @Column({ nullable: true })
+    @Column({ type: 'varchar', nullable: true })
     calendarEventId: string | null;
 
     // Relationships

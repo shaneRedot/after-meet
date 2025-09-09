@@ -42,11 +42,11 @@ export class SocialPost {
   postedAt: Date | null;
 
   // Reference to the automation that generated this post
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   automationId: string | null;
 
   // Platform-specific post ID (for tracking, analytics)
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   platformPostId: string | null;
 
   // Error message if posting failed

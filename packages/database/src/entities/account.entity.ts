@@ -43,7 +43,7 @@ export class Account {
   @Column({ nullable: true, type: 'timestamp' })
   expiresAt: Date | null;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: 'text' })
   scope: string | null;
 
   // Additional provider-specific data (e.g., profile info)

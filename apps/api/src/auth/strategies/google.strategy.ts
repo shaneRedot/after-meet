@@ -24,11 +24,11 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     super({
       clientID: configService.get('GOOGLE_CLIENT_ID'),
       clientSecret: configService.get('GOOGLE_CLIENT_SECRET'),
-      callbackURL: '/api/auth/google/callback',
+      callbackURL: configService.get('GOOGLE_CALLBACK_URL'),
       scope: [
         'profile',
         'email',
-        'https://www.googleapis.com/auth/calendar.readonly', // Calendar access
+        // 'https://www.googleapis.com/auth/calendar.readonly', // Calendar access - temporarily disabled for testing
       ],
     });
   }

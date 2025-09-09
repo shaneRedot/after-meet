@@ -272,6 +272,18 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       }
     },
 
+    logout: () => {
+      // Clear authentication data
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('user_data');
+      
+      // Reset to demo user
+      dispatch({ type: 'SET_USER', payload: { id: '1', email: 'demo@after-meet.com', name: 'Demo User' } });
+      
+      // Redirect to home page
+      window.location.href = '/';
+    },
+
     refreshData: async () => {
       await Promise.all([
         actions.loadMeetings(),
@@ -284,19 +296,36 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   // Load initial data
   useEffect(() => {
-    // Mock authentication for demo
-    dispatch({ type: 'SET_USER', payload: { id: '1', email: 'demo@after-meet.com', name: 'Demo User' } });
-    actions.refreshData();
+    // Check for real authentication first
+    const token = localStorage.getItem('auth_token');
+    const userData = localStorage.getItem('user_data');
+    
+    if (token && userData) {
+      // User is authenticated
+      try {
+        const user = JSON.parse(userData);
+        dispatch({ type: 'SET_USER', payload: user });
+        actions.refreshData();
+      } catch (error) {
+        console.error('Failed to parse user data:', error);
+        // Clear invalid data
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('user_data');
+      }
+    }
+    // If no token/userData, user stays unauthenticated
   }, []);
 
-  // Auto-refresh data every 30 seconds
+  // Auto-refresh data every 30 seconds (only when authenticated)
   useEffect(() => {
+    if (!state.user.isAuthenticated) return;
+    
     const interval = setInterval(() => {
       actions.loadJobStatus(); // Only refresh jobs for real-time updates
     }, 30000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [state.user.isAuthenticated]);
 
   return (
     <AppContext.Provider value={{ state, dispatch, actions }}>

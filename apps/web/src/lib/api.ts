@@ -5,12 +5,12 @@ const ENABLE_REAL_API = process.env.NEXT_PUBLIC_ENABLE_REAL_API === 'true';
 // HTTP client with base configuration
 const httpClient = {
   get: async (url: string) => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
     const response = await fetch(`${API_BASE_URL}/api${url}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        // Add auth token when available
-        // 'Authorization': `Bearer ${token}`,
+        ...(token && { 'Authorization': `Bearer ${token}` }),
       },
     });
     if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -18,11 +18,12 @@ const httpClient = {
   },
   
   post: async (url: string, data: any) => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
     const response = await fetch(`${API_BASE_URL}/api${url}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        // 'Authorization': `Bearer ${token}`,
+        ...(token && { 'Authorization': `Bearer ${token}` }),
       },
       body: JSON.stringify(data),
     });

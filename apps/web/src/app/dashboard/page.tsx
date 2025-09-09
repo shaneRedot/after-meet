@@ -17,10 +17,28 @@ export default function Dashboard() {
 
   if (!user.isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Loading After-Meet Dashboard...</h1>
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center max-w-md mx-auto p-8">
+          <div className="bg-white rounded-lg shadow-lg p-8">
+            <div className="bg-blue-600 p-3 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+              <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">Authentication Required</h1>
+            <p className="text-gray-600 mb-6">
+              Please sign in with your Google account to access the After-Meet dashboard.
+            </p>
+            <a 
+              href="http://localhost:3001/api/auth/google"
+              className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors inline-block"
+            >
+              Sign in with Google
+            </a>
+            <p className="text-sm text-gray-500 mt-4">
+              <a href="/" className="text-blue-600 hover:text-blue-700">← Back to Home</a>
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -61,6 +79,14 @@ export default function Dashboard() {
               >
                 Refresh
               </button>
+              {user.email !== 'demo@after-meet.com' && (
+                <button 
+                  onClick={actions.logout}
+                  className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700"
+                >
+                  Logout
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -75,15 +101,26 @@ export default function Dashboard() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <div>
-                <h3 className="text-lg font-semibold">Live Demo Coming Soon!</h3>
-                <p className="text-blue-100">
-                  This dashboard preview shows the After-Meet interface. Full demo with live data will be available soon.
-                </p>
+                {user.email === 'demo@after-meet.com' ? (
+                  <>
+                    <h3 className="text-lg font-semibold">Live Demo Coming Soon!</h3>
+                    <p className="text-blue-100">
+                      This dashboard preview shows the After-Meet interface. Full demo with live data will be available soon.
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <h3 className="text-lg font-semibold">Welcome to After-Meet!</h3>
+                    <p className="text-blue-100">
+                      Your account is connected. Start by connecting your Google Calendar to enable meeting automation.
+                    </p>
+                  </>
+                )}
               </div>
             </div>
             <div className="hidden sm:block">
               <span className="bg-white bg-opacity-20 px-3 py-1 rounded-full text-sm font-medium">
-                Preview Mode
+                {user.email === 'demo@after-meet.com' ? 'Preview Mode' : 'Active Account'}
               </span>
             </div>
           </div>

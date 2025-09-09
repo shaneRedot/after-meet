@@ -29,11 +29,12 @@ export class AuthController {
     try {
       const result = await this.authService.handleOAuthCallback('google', req.user);
       
-      // Redirect to frontend with JWT token
+      // Redirect to frontend auth callback with JWT token
       const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-      res.redirect(`${frontendUrl}/auth/success?token=${result.accessToken}&user=${encodeURIComponent(JSON.stringify(result.user))}`);
+      res.redirect(`${frontendUrl}/auth/callback?token=${result.accessToken}&user=${encodeURIComponent(JSON.stringify(result.user))}`);
     } catch (error: any) {
-      res.redirect(`${process.env.FRONTEND_URL}/auth/error?message=${encodeURIComponent(error.message)}`);
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      res.redirect(`${frontendUrl}/auth/callback?error=${encodeURIComponent(error.message)}`);
     }
   }
 

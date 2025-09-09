@@ -66,6 +66,30 @@ export default function Dashboard() {
         </div>
       </header>
 
+      {/* Demo Notice Banner */}
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <h3 className="text-lg font-semibold">Live Demo Coming Soon!</h3>
+                <p className="text-blue-100">
+                  This dashboard preview shows the After-Meet interface. Full demo with live data will be available soon.
+                </p>
+              </div>
+            </div>
+            <div className="hidden sm:block">
+              <span className="bg-white bg-opacity-20 px-3 py-1 rounded-full text-sm font-medium">
+                Preview Mode
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Status Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">

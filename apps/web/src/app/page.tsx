@@ -39,7 +39,7 @@ export default function Home() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a href="/dashboard" className="bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-blue-700 transition-colors inline-block">
-              View Live Demo
+              View Dashboard Preview
             </a>
             <button className="border border-gray-300 text-gray-700 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-50 transition-colors">
               Watch Video
@@ -124,7 +124,12 @@ export default function Home() {
 
         {/* Demo Data Section */}
         <div className="mt-20 bg-gradient-to-r from-gray-900 to-gray-800 rounded-2xl p-8 text-white">
-          <h2 className="text-2xl font-bold text-center mb-8">Live Demo: Backend in Action</h2>
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold mb-2">Live Demo: Backend in Action</h2>
+            <p className="text-gray-300 text-sm">
+              Preview the interface - Full live demo with real data coming soon!
+            </p>
+          </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Mock Meeting Data */}

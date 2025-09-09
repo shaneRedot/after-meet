@@ -86,23 +86,25 @@ export class CalendarService {
           .map(attendee => attendee.email)
           .filter(Boolean) as string[],
       }));
-    } catch (error: any) {
+    } catch (error) {
       this.logger.error(`❌ Failed to fetch calendar events for user ${userId}:`, error);
       
       // More detailed error logging
-      if (error?.code === 401) {
-        this.logger.error(`🔑 Authentication Error: The access token is invalid or expired`);
-        this.logger.error(`💡 Possible causes: 1) Token expired 2) Calendar API not enabled 3) Missing calendar scope`);
-      } else if (error?.code === 403) {
-        this.logger.error(`🚫 Permission Error: Calendar API access denied`);
-        this.logger.error(`💡 Possible causes: 1) Calendar API not enabled 2) OAuth consent screen missing calendar scope`);
+      if (typeof error === 'object' && error !== null && 'code' in error) {
+        if ((error as any).code === 401) {
+          this.logger.error(` Authentication Error: The access token is invalid or expired`);
+          this.logger.error(` Possible causes: 1) Token expired 2) Calendar API not enabled 3) Missing calendar scope`);
+        } else if ((error as any).code === 403) {
+          this.logger.error(` Permission Error: Calendar API access denied`);
+          this.logger.error(` Possible causes: 1) Calendar API not enabled 2) OAuth consent screen missing calendar scope`);
+        }
       }
       
       this.logger.error(`❌ Error details:`, {
         message: error instanceof Error ? error.message : 'Unknown error',
-        code: error?.code,
-        status: error?.status,
-        errors: error?.errors,
+        code: (error as any)?.code,
+        status: (error as any)?.status,
+        errors: (error as any)?.errors,
       });
       throw new Error(`Calendar API Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
@@ -132,7 +134,7 @@ export class CalendarService {
           .map(attendee => attendee.email)
           .filter(Boolean) as string[],
       };
-    } catch (error: any) {
+    } catch (error) {
       this.logger.error(`Failed to fetch event ${eventId} for user ${userId}:`, error);
       throw new NotFoundException('Calendar event not found');
     }
@@ -156,7 +158,7 @@ export class CalendarService {
       });
 
       return response.data.id!;
-    } catch (error: any) {
+    } catch (error) {
       this.logger.error(`Failed to setup calendar watch for user ${userId}:`, error);
       throw new Error('Failed to setup calendar notifications');
     }

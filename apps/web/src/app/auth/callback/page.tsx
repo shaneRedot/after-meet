@@ -22,7 +22,7 @@ function AuthCallbackContent() {
         // Get the token from URL params (this would come from your backend OAuth callback)
         const token = searchParams.get('token');
         const error = searchParams.get('error');
-
+        
         if (error) {
           setStatus('error');
           setError(decodeURIComponent(error));
@@ -46,10 +46,9 @@ function AuthCallbackContent() {
             localStorage.setItem('user_data', JSON.stringify(userData));
             setStatus('success');
             
-            // Redirect to dashboard after short delay
-            setTimeout(() => {
-              router.push('/dashboard');
-            }, 2000);
+            console.log('🔄 Redirecting to dashboard...');
+            // Immediate redirect to dashboard
+            router.push('/dashboard');
           } else {
             throw new Error('Failed to fetch user data');
           }

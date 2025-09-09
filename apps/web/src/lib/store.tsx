@@ -207,8 +207,8 @@ const AppContext = createContext<{
     loadJobStatus: () => Promise<void>;
     loadAIStatus: () => Promise<void>;
     toggleMeetingBot: (meetingId: string, enabled: boolean) => Promise<void>;
-    refreshData: () => Promise<void>;
     syncCalendar: () => Promise<any>;
+    refreshData: () => Promise<void>;
     logout: () => void;
   };
 } | null>(null);
@@ -220,22 +220,28 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const actions = {
     loadMeetings: async () => {
       try {
+        console.log('🔄 Store: Starting to load meetings...');
         dispatch({ type: 'SET_LOADING', payload: { section: 'meetings', loading: true } });
-        console.log('🔄 Loading meetings...');
         
-        const response = await api.meetings.getUpcoming();
-        console.log('📅 API Response:', response);
+        const token = localStorage.getItem('auth_token');
+        console.log('🔑 Store: Auth token present:', !!token);
         
-        // Backend already filters by upcoming vs past, so we don't need to filter by status
-        const upcoming = response.meetings || [];
-        const recent: string | any[] = []; // We'll get recent meetings from a separate API call if needed
+        // Get upcoming meetings (startTime >= now)
+        const upcomingResponse = await api.meetings.getUpcoming();
+        console.log('📊 Store: Upcoming API response:', upcomingResponse);
         
-        console.log('📊 Meetings loaded:', { upcoming: upcoming.length, recent: recent.length });
-        console.log('📋 Upcoming meetings:', upcoming);
+        // Get completed meetings (startTime < now) 
+        const recentResponse = await api.meetings.getRecent();
+        console.log('📊 Store: Recent API response:', recentResponse);
+        
+        const upcoming = upcomingResponse.meetings || [];
+        const recent = recentResponse.meetings || [];
+        
+        console.log('📈 Store: Filtered meetings - upcoming:', upcoming.length, 'recent:', recent.length);
         
         dispatch({ type: 'SET_MEETINGS', payload: { upcoming, recent } });
       } catch (error) {
-        console.error('❌ Error loading meetings:', error);
+        console.error('❌ Store: Failed to load meetings:', error);
         dispatch({ type: 'SET_ERROR', payload: { section: 'meetings', error: 'Failed to load meetings' } });
       }
     },
@@ -284,17 +290,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
     syncCalendar: async () => {
       try {
-        console.log('🔄 Starting calendar sync...');
-        const result = await api.meetings.syncCalendar(30);
-        console.log('📅 Sync completed:', result);
+        dispatch({ type: 'SET_LOADING', payload: { section: 'meetings', loading: true } });
+        const response = await api.calendar.syncCalendar();
         
-        // Reload meetings after sync
+        // Reload meetings after sync to show updated data
         await actions.loadMeetings();
         
-        return result;
+        return response;
       } catch (error) {
-        console.error('❌ Calendar sync failed:', error);
+        dispatch({ type: 'SET_ERROR', payload: { section: 'meetings', error: 'Calendar sync failed' } });
+        console.error('Calendar sync failed:', error);
         throw error;
+      } finally {
+        dispatch({ type: 'SET_LOADING', payload: { section: 'meetings', loading: false } });
       }
     },
 
@@ -330,24 +338,24 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   // Load initial data
   useEffect(() => {
-    // Check for real authentication first
-    const token = localStorage.getItem('auth_token');
-    const userData = localStorage.getItem('user_data');
-    
-    if (token && userData) {
-      // User is authenticated
-      try {
-        const user = JSON.parse(userData);
-        dispatch({ type: 'SET_USER', payload: user });
-        actions.refreshData();
-      } catch (error) {
-        console.error('Failed to parse user data:', error);
-        // Clear invalid data
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('user_data');
+      // Check for real authentication first
+      const token = localStorage.getItem('auth_token');
+      const userData = localStorage.getItem('user_data');
+      
+      if (token && userData) {
+        // User is authenticated
+        try {
+          const user = JSON.parse(userData);
+          dispatch({ type: 'SET_USER', payload: user });
+          actions.refreshData();
+        } catch (error) {
+          console.error('Failed to parse user data:', error);
+          // Clear invalid data
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('user_data');
+        }
       }
-    }
-    // If no token/userData, user stays unauthenticated
+      // If no token/userData, user stays unauthenticated
   }, []);
 
   // Auto-refresh data every 30 seconds (only when authenticated)

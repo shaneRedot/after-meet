@@ -60,8 +60,6 @@ export class AuthService {
             userId: user.id,
             provider: provider as AccountProvider,
             providerAccountId: String(providerAccountId),
-            accessToken: this.encryptToken(accessToken),
-            refreshToken: refreshToken ? this.encryptToken(refreshToken) : null,
             expiresAt: oauthUser.expiresAt ? new Date(oauthUser.expiresAt) : null,
             scope: oauthUser.scope || null,
             metadata: {
@@ -202,7 +200,7 @@ export class AuthService {
             email: user.email,
             name: user.name
         };
-        return this.jwtService.sign(payload, { secret: process.env.JWT_SECRET });
+        return this.jwtService.sign(payload);
     }
 
     /**

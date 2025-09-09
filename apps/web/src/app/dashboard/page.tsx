@@ -17,6 +17,25 @@ export default function Dashboard() {
 
   const { meetings, socialPosts, jobs, user } = state;
   
+  // Debug: Log user authentication state
+  useEffect(() => {
+    console.log('🔍 Dashboard: User state updated:', {
+      isAuthenticated: user.isAuthenticated,
+      userId: user.id,
+      email: user.email,
+      name: user.name
+    });
+    
+    // Check localStorage for debugging
+    const token = localStorage.getItem('auth_token');
+    const userData = localStorage.getItem('user_data');
+    console.log('🔍 Dashboard: LocalStorage state:', {
+      hasToken: !!token,
+      hasUserData: !!userData,
+      tokenLength: token ? token.length : 0
+    });
+  }, [user]);
+  
   // Load meetings when dashboard mounts - only run once when user becomes authenticated
   useEffect(() => {
     if (user.isAuthenticated) {
@@ -71,7 +90,7 @@ export default function Dashboard() {
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-3">
+            <a href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
               <div className="bg-blue-600 p-2 rounded-lg">
                 <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -81,7 +100,7 @@ export default function Dashboard() {
                 <h1 className="text-xl font-bold text-gray-900">After-Meet</h1>
                 <p className="text-sm text-gray-500">AI Social Content Generator</p>
               </div>
-            </div>
+            </a>
             <div className="flex items-center space-x-4">
               <div className="text-sm text-gray-600">
                 {currentTime.toLocaleString()}
@@ -94,6 +113,12 @@ export default function Dashboard() {
                   </span>
                 </div>
               </div>
+              <a 
+                href="/"
+                className="bg-gray-600 text-white px-3 py-1 rounded text-sm hover:bg-gray-700 transition-colors"
+              >
+                Home
+              </a>
               <button 
                 onClick={actions.refreshData}
                 className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
@@ -231,8 +256,8 @@ export default function Dashboard() {
                   {isSyncing ? 'Syncing...' : 'Sync Calendar'}
                 </button>
                 {(meetings.loading || isSyncing) && (
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                )}
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+              )}
               </div>
             </div>
             <div className="p-6">

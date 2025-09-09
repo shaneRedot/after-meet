@@ -2,13 +2,6 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 const ENABLE_REAL_API = true; // Forced to true for debugging
 
-// Debug logging (remove after testing)
-console.log('API Config:', {
-  API_BASE_URL,
-  NEXT_PUBLIC_ENABLE_REAL_API: process.env.NEXT_PUBLIC_ENABLE_REAL_API,
-  ENABLE_REAL_API
-});
-
 // HTTP client with base configuration
 const httpClient = {
   get: async (url: string) => {
@@ -76,22 +69,19 @@ export const api = {
   // Meetings endpoints
   meetings: {
     getUpcoming: async () => {
-      console.log('🔍 getUpcoming called, ENABLE_REAL_API:', ENABLE_REAL_API);
-      
+      console.log('🌐 API: meetings.getUpcoming called, ENABLE_REAL_API:', ENABLE_REAL_API);
       if (ENABLE_REAL_API) {
-        console.log('📡 Making real API call to:', `${API_BASE_URL}/api/meetings?upcoming=true`);
-        const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
-        console.log('🔑 Auth token:', token ? 'Present' : 'Missing');
-        
+        console.log('🌐 API: Making real API call to /meetings?upcoming=true');
         try {
           const result = await httpClient.get('/meetings?upcoming=true');
-          console.log('✅ Real API response:', result);
+          console.log('✅ API: Real API call successful:', result);
           return result;
         } catch (error) {
-          console.error('❌ Real API error:', error);
+          console.error('❌ API: Real API call failed:', error);
           throw error;
         }
       }
+      console.log('🎭 API: Using mock data');
       // Mock data that matches backend Meeting entity structure
       return {
         meetings: [
@@ -110,6 +100,27 @@ export const api = {
             createdAt: new Date('2025-09-06T10:00:00'),
             updatedAt: new Date('2025-09-06T10:00:00'),
           },
+        ],
+        total: 2,
+      };
+    },
+
+    getRecent: async () => {
+      console.log('🌐 API: meetings.getRecent called, ENABLE_REAL_API:', ENABLE_REAL_API);
+      if (ENABLE_REAL_API) {
+        console.log('🌐 API: Making real API call to /meetings?upcoming=false');
+        try {
+          const result = await httpClient.get('/meetings?upcoming=false');
+          console.log('✅ API: Real API call successful:', result);
+          return result;
+        } catch (error) {
+          console.error('❌ API: Real API call failed:', error);
+          throw error;
+        }
+      }
+      console.log('🎭 API: Using mock data');
+      return {
+        meetings: [
           {
             id: '2',
             title: 'Product Roadmap Review',
@@ -125,7 +136,7 @@ export const api = {
             updatedAt: new Date('2025-09-07T10:30:00'),
           },
         ],
-        total: 2,
+        total: 1,
       };
     },
 
@@ -147,26 +158,25 @@ export const api = {
     },
 
     toggleBot: async (id: string, enabled: boolean) => {
+      console.log('🌐 API: meetings.toggleBot called, ENABLE_REAL_API:', ENABLE_REAL_API);
       if (ENABLE_REAL_API) {
-        const endpoint = enabled ? `/meetings/${id}/recall/enable` : `/meetings/${id}/recall/disable`;
-        return await httpClient.post(endpoint, {});
-      }
-      return { id, recallEnabled: enabled };
-    },
-
-    syncCalendar: async (daysAhead: number = 30) => {
-      if (ENABLE_REAL_API) {
-        console.log('🔄 Syncing calendar events...');
+        console.log('🌐 API: Making real API call to toggle bot');
         try {
-          const result = await httpClient.post('/meetings/sync', { daysAhead });
-          console.log('✅ Calendar sync result:', result);
+          let result;
+          if (enabled) {
+            result = await httpClient.post(`/meetings/${id}/recall/enable`, {});
+          } else {
+            result = await httpClient.post(`/meetings/${id}/recall/disable`, {});
+          }
+          console.log('✅ API: Real API call successful:', result);
           return result;
         } catch (error) {
-          console.error('❌ Calendar sync error:', error);
+          console.error('❌ API: Real API call failed:', error);
           throw error;
         }
       }
-      return { created: 0, updated: 0, skipped: 0, errors: [] };
+      console.log('🎭 API: Using mock data');
+      return { id, recallEnabled: enabled };
     },
   },
 
@@ -392,8 +402,15 @@ export const api = {
   },
   meetings: {
     getUpcoming: () => apiClient.get('/meetings?upcoming=true'),
+    getRecent: () => apiClient.get('/meetings?upcoming=false'),
     getById: (id) => apiClient.get(`/meetings/${id}`),
-    toggleBot: (id, enabled) => apiClient.patch(`/meetings/${id}/bot`, { enabled }),
+    toggleBot: (id, enabled) => {
+      if (enabled) {
+        return apiClient.post(`/meetings/${id}/recall/enable`);
+      } else {
+        return apiClient.post(`/meetings/${id}/recall/disable`);
+      }
+    },
   },
   social: {
     getGeneratedContent: () => apiClient.get('/social/generated-content'),
